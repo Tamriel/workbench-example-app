@@ -1,44 +1,49 @@
 package example
-import scala.scalajs.js.annotation.JSExport
+
 import org.scalajs.dom
 import org.scalajs.dom.html
-import scala.util.Random
 
-case class Point(x: Int, y: Int){
-  def +(p: Point) = Point(x + p.x, y + p.y)
-  def /(d: Int) = Point(x / d, y / d)
-}
+import scala.scalajs.js.annotation.JSExport
+import scalatags.JsDom.all._
 
 @JSExport
 object ScalaJSExample {
   @JSExport
-  def main(canvas: html.Canvas): Unit = {
-    val ctx = canvas.getContext("2d")
-                    .asInstanceOf[dom.CanvasRenderingContext2D]
+  def main(target: html.Div) = {
+    val (animalA, animalB) = ("fox", "dog")
+    target.appendChild(
+      div(
+        h1("Hello World!"),
+        p(
+          "The quick brown ", b(animalA),
+          " jumps over the lazy ",
+          i(animalB), "."
+        )
+      ).render
+    )
 
-    var count = 0
-    var p = Point(0, 0)
-    val corners = Seq(Point(255, 255), Point(0, 255), Point(128, 0))
+    val box = input(
+      `type` := "text",
+      placeholder := "Type here!"
+    ).render
 
-    def clear() = {
-      ctx.fillStyle = "black"
-      ctx.fillRect(0, 0, 255, 255)
+    val output = span.render
+
+    box.onkeyup = (e: dom.Event) => {
+      output.textContent =
+        box.value.toUpperCase
     }
 
-    def run = for (i <- 0 until 10){
-      if (count % 3000 == 0) clear()
-      count += 1
-      p = (p + corners(Random.nextInt(3))) / 2
-
-      val height = 512.0 / (255 + p.y)
-      val r = (p.x * height).toInt
-      val g = ((255-p.x) * height).toInt
-      val b = p.y
-      ctx.fillStyle = s"rgb($g, $r, $b)"
-
-      ctx.fillRect(p.x, p.y, 1, 1)
-    }
-
-    dom.window.setInterval(() => run, 50)
+    target.appendChild(
+      div(
+        h1("Capital Box!"),
+        p(
+          "Type here and " +
+            "have it capitalized!"
+        ),
+        div(box),
+        div(output)
+      ).render
+    )
   }
 }
